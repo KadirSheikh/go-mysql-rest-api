@@ -14,10 +14,20 @@ import (
 
 //GetAllEmployee get all employee data
 func GetAllEmployee(w http.ResponseWriter, r *http.Request) {
+
+	//Creating array of employees struct
 	var employees []entity.Employee
+
+	//Get All Employee data using find
 	database.Connector.Find(&employees)
+
+	//Set Header
 	w.Header().Set("Content-Type", "application/json")
+
+	//Check status
 	w.WriteHeader(http.StatusOK)
+
+	//Get data json format
 	json.NewEncoder(w).Encode(employees)
 }
 
@@ -46,10 +56,20 @@ func CreateEmployee(w http.ResponseWriter, r *http.Request) {
 
 //UpdateEmployeeByID updates employee with respective ID
 func UpdateEmployeeByID(w http.ResponseWriter, r *http.Request) {
-	requestBody, _ := ioutil.ReadAll(r.Body)
+
+	vars := mux.Vars(r)
+	key := vars["id"]
+
+	// requestBody, _ := ioutil.ReadAll(r.Body)
+	// var employee entity.Employee
+	// json.Unmarshal(requestBody, &employee)
+
+	id, _ := strconv.ParseInt(key, 10, 64)
+	// database.Connector.Where("id = ?", id).Save(&employee)
+
 	var employee entity.Employee
-	json.Unmarshal(requestBody, &employee)
-	database.Connector.Save(&employee)
+	json.NewDecoder(r.Body).Decode(&employee)
+	database.Connector.Where("id = ?", id).Save(&employee)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
